@@ -48,12 +48,12 @@ const createApiClient = () => {
         } else {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
+          window.dispatchEvent(new Event('auth:logout'));
         }
       } catch (error) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        window.dispatchEvent(new Event('auth:logout'));
         throw error;
       }
     }
@@ -211,7 +211,7 @@ export const authService = {
     console.log('Logging out');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    window.location.href = '/login';
+    window.dispatchEvent(new Event('auth:logout'));
   },
 
   getToken() {

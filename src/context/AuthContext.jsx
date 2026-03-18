@@ -1,11 +1,22 @@
 import { createContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 
 export const AuthContext = createContext(undefined);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleLogout = () => {
+      setUser(null);
+      navigate('/login');
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, [navigate]);
 
   const { data: userData, isLoading } = useQuery({
     queryKey: ['auth', 'me'],
