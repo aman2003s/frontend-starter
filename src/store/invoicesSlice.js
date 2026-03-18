@@ -8,7 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   filters: {
-    page: 0,
+    page: 1,
     limit: 10,
     search: '',
     status: '',
@@ -97,8 +97,8 @@ const invoicesSlice = createSlice({
       })
       .addCase(fetchInvoices.fulfilled, (state, action) => {
         state.loading = false;
-        state.invoices = action.payload.invoices || action.payload.data || [];
-        state.totalCount = action.payload.totalCount || action.payload.total || 0;
+        state.invoices = action.payload.items || [];
+        state.totalCount = action.payload.totalCount || 0;
       })
       .addCase(fetchInvoices.rejected, (state, action) => {
         state.loading = false;

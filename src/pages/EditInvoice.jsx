@@ -1,4 +1,5 @@
-import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Box,
@@ -27,7 +28,7 @@ export function EditInvoice() {
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
+    control,
   } = useForm({
     mode: 'onBlur',
     defaultValues: {
@@ -37,19 +38,20 @@ export function EditInvoice() {
     },
   });
 
-  const statusValue = watch('status');
-
   const invoiceQuery = useQuery({
     queryKey: ['invoice', id],
     queryFn: () => invoiceService.getInvoice(id),
-    onSuccess: (data) => {
-      reset({
-        customerName: data.customerName || '',
-        amount: data.amount || '',
-        status: data.status || '',
-      });
-    },
   });
+
+  useEffect(() => {
+    if (invoiceQuery.data) {
+      reset({
+        customerName: invoiceQuery.data.customerName || '',
+        amount: invoiceQuery.data.amount || '',
+        status: invoiceQuery.data.status || '',
+      });
+    }
+  }, [invoiceQuery.data, reset]);
 
   const updateMutation = useMutation({
     mutationFn: (data) => invoiceService.updateInvoice(id, data),
@@ -62,7 +64,7 @@ export function EditInvoice() {
     updateMutation.mutate({
       customerName: data.customerName,
       amount: parseFloat(data.amount),
-      ...(statusValue && { status: statusValue }),
+      ...(data.status && { status: data.status }),
     });
   };
 
@@ -124,18 +126,20 @@ export function EditInvoice() {
 
               <FormControl fullWidth margin="normal">
                 <InputLabel>Status (Optional)</InputLabel>
-                <Select
-                  label="Status (Optional)"
-                  {...register('status')}
-                  value={statusValue}
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value="Draft">Draft</MenuItem>
-                  <MenuItem value="Sent">Sent</MenuItem>
-                  <MenuItem value="Paid">Paid</MenuItem>
-                </Select>
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <Select label="Status (Optional)" {...field}>
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value="Draft">Draft</MenuItem>
+                      <MenuItem value="Sent">Sent</MenuItem>
+                      <MenuItem value="Paid">Paid</MenuItem>
+                    </Select>
+                  )}
+                />
               </FormControl>
 
               <Button

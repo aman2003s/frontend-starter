@@ -29,13 +29,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useAuth } from '../hooks/useAuth';
 import { usePermission } from '../hooks/usePermission';
 import {
   fetchInvoices,
   deleteInvoice,
   setFilters,
-  clearError
 } from '../store/invoicesSlice';
 import {
   openInvoiceForm,
@@ -47,9 +45,9 @@ import { InvoiceForm } from '../components/InvoiceForm';
 import { useDispatch, useSelector } from 'react-redux';
 
 export function Invoices() {
-  const { user } = useAuth();
   const { can } = usePermission();
   const dispatch = useDispatch();
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const {
     invoices,
     totalCount,
@@ -57,6 +55,11 @@ export function Invoices() {
     error,
     filters
   } = useSelector((state) => state.invoices);
+  console.log(invoices,
+    totalCount,
+    loading,
+    error,
+    filters)
   const {
     invoiceFormOpen,
     editingInvoiceId,
@@ -83,21 +86,15 @@ export function Invoices() {
   };
 
   const handleCreateClick = () => {
-    dispatch(openInvoiceForm({ editingId: null }));
+    dispatch(openInvoiceForm(null));
   };
 
   const handleEditClick = (id) => {
-    dispatch(openInvoiceForm({ editingId: id }));
+    dispatch(openInvoiceForm(id));
   };
 
   const handleDeleteClick = (id) => {
     dispatch(openDeleteInvoiceDialog(id));
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteId) {
-      handleDeleteInvoice(deleteId);
-    }
   };
 
   const handleCloseForm = () => {
@@ -158,17 +155,17 @@ export function Invoices() {
         <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
           <TextField
             placeholder="Search by customer name"
-            value={filters.searchTerm || ''}
-            onChange={(e) => dispatch(setFilters({ ...filters, searchTerm: e.target.value, page: 0 }))}
+            value={filters.search || ''}
+            onChange={(e) => dispatch(setFilters({ ...filters, search: e.target.value, page: 1 }))}
             sx={{ flex: 1, minWidth: '200px' }}
             size="small"
           />
           <FormControl sx={{ minWidth: '150px' }}>
             <InputLabel>Status</InputLabel>
             <Select
-              value={filters.statusFilter || ''}
+              value={filters.status || ''}
               label="Status"
-              onChange={(e) => dispatch(setFilters({ ...filters, statusFilter: e.target.value, page: 0 }))}
+              onChange={(e) => dispatch(setFilters({ ...filters, status: e.target.value, page: 1 }))}
               size="small"
             >
               <MenuItem value="">All</MenuItem>
@@ -253,9 +250,9 @@ export function Invoices() {
               component="div"
               count={totalCount}
               rowsPerPage={filters.limit || 10}
-              page={filters.page || 0}
-              onPageChange={(event, newPage) => dispatch(setFilters({ ...filters, page: newPage }))}
-              onRowsPerPageChange={(event) => dispatch(setFilters({ ...filters, limit: parseInt(event.target.value, 10), page: 0 }))}
+              page={(filters.page || 1) - 1}
+              onPageChange={(event, newPage) => dispatch(setFilters({ ...filters, page: newPage + 1 }))}
+              onRowsPerPageChange={(event) => dispatch(setFilters({ ...filters, limit: parseInt(event.target.value, 10), page: 1 }))}
             />
           </>
         )}

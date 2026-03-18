@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Dialog,
@@ -22,6 +22,7 @@ export function InvoiceForm({ open, onClose, invoiceId = null, onSuccess = null 
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -126,16 +127,17 @@ export function InvoiceForm({ open, onClose, invoiceId = null, onSuccess = null 
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="status-label">Status</InputLabel>
-            <Select
-              labelId="status-label"
-              label="Status"
-              {...register('status')}
-              defaultValue="Draft"
-            >
-              <MenuItem value="Draft">Draft</MenuItem>
-              <MenuItem value="Sent">Sent</MenuItem>
-              <MenuItem value="Paid">Paid</MenuItem>
-            </Select>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select labelId="status-label" label="Status" {...field}>
+                  <MenuItem value="Draft">Draft</MenuItem>
+                  <MenuItem value="Sent">Sent</MenuItem>
+                  <MenuItem value="Paid">Paid</MenuItem>
+                </Select>
+              )}
+            />
           </FormControl>
         </form>
       </DialogContent>
