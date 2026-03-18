@@ -1,21 +1,20 @@
-import React from 'react';
-import { Box, Button, Typography, IconButton } from '@mui/material';
+import { Box, Button, Typography, IconButton, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
 import { authService } from '../services/authService';
+import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleLogout = () => {
     authService.logout();
     navigate('/login');
   };
 
-  const handleProfile = () => {
-  };
+  const firstLetter = user?.email?.charAt(0).toUpperCase() || '?';
 
   return (
     <Box
@@ -40,9 +39,12 @@ export function Header() {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton onClick={handleProfile} sx={{ color: '#6b7280' }} data-testid="profile-button">
-          <PersonIcon />
-        </IconButton>
+        <Avatar
+          src={user?.profileImage || undefined}
+          sx={{ width: 36, height: 36, bgcolor: '#6b48ff', fontSize: 16, cursor: 'pointer' }}
+        >
+          {!user?.profileImage && firstLetter}
+        </Avatar>
         <Button
           onClick={handleLogout}
           variant="outlined"
