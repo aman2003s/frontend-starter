@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { Root } from './Root';
 import { theme } from './theme';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
