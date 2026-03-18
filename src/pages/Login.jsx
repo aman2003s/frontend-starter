@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { Header } from '../components/Header';
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -58,7 +59,11 @@ export function Login() {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', width: '100vw' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100vw' }}>
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <Header minimal />
+      </Box>
+      <Box sx={{ display: 'flex', flex: 1 }}>
       <Box
         sx={{
           display: { xs: 'none', md: 'flex' },
@@ -88,7 +93,7 @@ export function Login() {
         <Box sx={{ zIndex: 1, maxWidth: '80%' }}>
           <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2 }}>
             Accounting, <br />
-            <span style={{ color: 'rgba(255,255,255,0.6)' }}>automated</span> with Intelligence.
+            automated with Intelligence.
           </Typography>
           <Typography variant="body1" sx={{ mt: 3, opacity: 0.8, lineHeight: 1.6, maxWidth: 400 }}>
             Transform your accounting practice with intelligent automation. Let AI handle the routine while you focus on what matters.
@@ -254,6 +259,7 @@ export function Login() {
             </Box>
           </Box>
         </Box>
+      </Box>
       </Box>
     </Box>
   );

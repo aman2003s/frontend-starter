@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { Header } from '../components/Header';
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -61,7 +62,11 @@ export function SignUp() {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Box>
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <Header minimal />
+      </Box>
+      <Container maxWidth="sm">
       <Box
         sx={{
           display: 'flex',
@@ -166,5 +171,6 @@ export function SignUp() {
         </Box>
       </Box>
     </Container>
+    </Box>
   );
 }

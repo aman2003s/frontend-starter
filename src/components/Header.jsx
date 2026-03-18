@@ -5,7 +5,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { authService } from '../services/authService';
 import { useAuth } from '../hooks/useAuth';
 
-export function Header() {
+export function Header({ minimal = false }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -38,30 +38,32 @@ export function Header() {
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Avatar
-          src={user?.profileImage || undefined}
-          sx={{ width: 36, height: 36, bgcolor: '#6b48ff', fontSize: 16, cursor: 'pointer' }}
-        >
-          {!user?.profileImage && firstLetter}
-        </Avatar>
-        <Button
-          onClick={handleLogout}
-          variant="outlined"
-          startIcon={<LogoutIcon />}
-          sx={{
-            color: '#6b48ff',
-            borderColor: '#6b48ff',
-            textTransform: 'none',
-            '&:hover': {
-              bgcolor: '#f3f4f6',
-              borderColor: '#5936e0',
-            },
-          }}
-        >
-          Logout
-        </Button>
-      </Box>
+      {!minimal && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar
+            src={user?.profileImage || undefined}
+            sx={{ width: 36, height: 36, bgcolor: '#6b48ff', fontSize: 16, cursor: 'pointer' }}
+          >
+            {!user?.profileImage && firstLetter}
+          </Avatar>
+          <Button
+            onClick={handleLogout}
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            sx={{
+              color: '#6b48ff',
+              borderColor: '#6b48ff',
+              textTransform: 'none',
+              '&:hover': {
+                bgcolor: '#f3f4f6',
+                borderColor: '#5936e0',
+              },
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
