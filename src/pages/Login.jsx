@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,18 +10,21 @@ import {
   Link as MuiLink,
   OutlinedInput,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 
 export function Login() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -182,7 +185,7 @@ export function Login() {
               <OutlinedInput
                 fullWidth
                 placeholder="Enter your password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 {...register('password', {
                   required: 'Password is required',
                   minLength: {
@@ -198,7 +201,11 @@ export function Login() {
                 }
                 endAdornment={
                   <InputAdornment position="end">
-                    <VisibilityOffOutlinedIcon sx={{ color: '#9ca3af', cursor: 'pointer' }} fontSize="small" />
+                    <IconButton size="small" onClick={() => setShowPassword((v) => !v)} edge="end">
+                      {showPassword
+                        ? <VisibilityOutlinedIcon sx={{ color: '#9ca3af' }} fontSize="small" />
+                        : <VisibilityOffOutlinedIcon sx={{ color: '#9ca3af' }} fontSize="small" />}
+                    </IconButton>
                   </InputAdornment>
                 }
                 sx={{
