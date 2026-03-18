@@ -41,12 +41,12 @@ const request = async (endpoint, options = {}) => {
       } else {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        window.dispatchEvent(new Event('auth:logout'));
       }
     } catch (error) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      window.location.href = '/login';
+      window.dispatchEvent(new Event('auth:logout'));
       throw error;
     }
   }
