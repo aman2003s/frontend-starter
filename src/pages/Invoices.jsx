@@ -15,7 +15,6 @@ import {
   Alert,
   IconButton,
   Chip,
-  TablePagination,
   Select,
   MenuItem,
   FormControl,
@@ -252,15 +251,51 @@ export function Invoices() {
               </Table>
             </TableContainer>
 
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, 50]}
-              component="div"
-              count={totalCount}
-              rowsPerPage={filters.limit || 10}
-              page={(filters.page || 1) - 1}
-              onPageChange={(event, newPage) => dispatch(setFilters({ ...filters, page: newPage + 1 }))}
-              onRowsPerPageChange={(event) => dispatch(setFilters({ ...filters, limit: parseInt(event.target.value, 10), page: 1 }))}
-            />
+            {(() => {
+              const totalPages = Math.ceil(totalCount / (filters.limit || 5));
+              const currentPage = filters.page || 1;
+              const getPageNumbers = () => {
+                const pages = [];
+                const left = Math.max(1, currentPage - 1);
+                const right = Math.min(totalPages, currentPage + 1);
+                for (let i = left; i <= right; i++) pages.push(i);
+                if (left > 2) pages.unshift('...');
+                if (left > 1) pages.unshift(1);
+                if (right < totalPages - 1) pages.push('...');
+                if (right < totalPages) pages.push(totalPages);
+                return [...new Set(pages)];
+              };
+              const btnStyle = (active) => ({
+                px: 1.5, py: 0.5, minWidth: 36, border: '1px solid',
+                borderColor: active ? '#6b48ff' : '#e5e7eb',
+                borderRadius: 1,
+                bgcolor: active ? '#6b48ff' : 'white',
+                color: active ? 'white' : '#374151',
+                fontWeight: active ? 700 : 400,
+                fontSize: 14,
+                '&:hover': { bgcolor: active ? '#6b48ff' : '#f3f4f6' },
+                '&:disabled': { opacity: 0.4, cursor: 'default' },
+              });
+              return (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.5, mt: 2 }}>
+                  <Button size="small" variant="text" sx={btnStyle(false)}
+                    disabled={currentPage === 1}
+                    onClick={() => dispatch(setFilters({ ...filters, page: currentPage - 1 }))}
+                  >Previous</Button>
+                  {getPageNumbers().map((p, i) =>
+                    p === '...'
+                      ? <Box key={`e${i}`} sx={{ px: 1, color: '#6b7280', fontSize: 14 }}>...</Box>
+                      : <Button key={p} size="small" variant="text" sx={btnStyle(p === currentPage)}
+                          onClick={() => p !== currentPage && dispatch(setFilters({ ...filters, page: p }))}
+                        >{p}</Button>
+                  )}
+                  <Button size="small" variant="text" sx={btnStyle(false)}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    onClick={() => dispatch(setFilters({ ...filters, page: currentPage + 1 }))}
+                  >Next</Button>
+                </Box>
+              );
+            })()}
           </>
         )}
       </Box>

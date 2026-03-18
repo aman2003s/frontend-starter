@@ -9,7 +9,7 @@ const initialState = {
   error: null,
   filters: {
     page: 1,
-    limit: 10,
+    limit: 5,
     search: '',
     status: '',
   },
