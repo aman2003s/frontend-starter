@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const handleLogout = () => {
       setUser(null);
-      navigate('/login');
+      navigate('/login', { replace: true });
     };
     window.addEventListener('auth:logout', handleLogout);
     return () => window.removeEventListener('auth:logout', handleLogout);

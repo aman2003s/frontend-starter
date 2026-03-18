@@ -7,22 +7,11 @@ export function Index() {
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
   }
 
-  if (isAuthenticated) {
-    return <Navigate to="/invoices" replace />;
-  }
-
-  return <Navigate to="/login" replace />;
+  return <Navigate to={isAuthenticated ? '/invoices' : '/login'} replace />;
 }

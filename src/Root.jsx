@@ -5,7 +5,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { PublicRoute } from './components/PublicRoute';
 import { Index } from './components/Index';
 import { RoleProtectedRoute } from './components/RoleProtectedRoute';
-import { Header } from './components/Header';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
@@ -97,11 +96,11 @@ function AppRoutes() {
 export function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

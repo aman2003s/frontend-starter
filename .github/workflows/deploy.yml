@@ -28,10 +28,80 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
+          aws-region: us-east-1
 
       - name: Deploy to S3
         run: aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
 
-      - name: Invalidate CloudFront
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_ID }} --paths "/*"
+      - name: Set S3 Bucket Policy for CloudFront
+        run: |
+          aws s3api put-bucket-policy \
+            --bucket ${{ secrets.AWS_S3_BUCKET }} \
+            --policy '{
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "AllowCloudFrontAccess",
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": "cloudfront.amazonaws.com"
+                  },
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::${{ secrets.AWS_S3_BUCKET }}/*",
+                  "Condition": {
+                    "StringEquals": {
+                      "AWS:SourceArn": "arn:aws:cloudfront::${{ secrets.AWS_ACCOUNT_ID }}:distribution/${{ secrets.AWS_CLOUDFRONT_ID }}"
+                    }
+                  }
+                }
+              ]
+            }'
+
+      - name: Configure CloudFront SPA Error Pages
+        run: |
+          # Get current config and ETag
+          aws cloudfront get-distribution-config \
+            --id ${{ secrets.AWS_CLOUDFRONT_ID }} > /tmp/dist-config.json
+
+          ETAG=$(python3 -c "import json; print(json.load(open('/tmp/dist-config.json'))['ETag'])")
+
+          # Patch CustomErrorResponses into the DistributionConfig
+          python3 - <<'EOF'
+          import json
+
+          with open('/tmp/dist-config.json') as f:
+              data = json.load(f)
+
+          config = data['DistributionConfig']
+          config['CustomErrorResponses'] = {
+              'Quantity': 2,
+              'Items': [
+                  {
+                      'ErrorCode': 403,
+                      'ResponsePagePath': '/index.html',
+                      'ResponseCode': '200',
+                      'ErrorCachingMinTTL': 0
+                  },
+                  {
+                      'ErrorCode': 404,
+                      'ResponsePagePath': '/index.html',
+                      'ResponseCode': '200',
+                      'ErrorCachingMinTTL': 0
+                  }
+              ]
+          }
+
+          with open('/tmp/updated-config.json', 'w') as f:
+              json.dump(config, f)
+          EOF
+
+          aws cloudfront update-distribution \
+            --id ${{ secrets.AWS_CLOUDFRONT_ID }} \
+            --distribution-config file:///tmp/updated-config.json \
+            --if-match "$ETAG"
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.AWS_CLOUDFRONT_ID }} \
+            --paths "/*"
