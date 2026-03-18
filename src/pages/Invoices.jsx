@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -48,6 +48,7 @@ export function Invoices() {
   const { can } = usePermission();
   const dispatch = useDispatch();
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const debounceRef = useRef(null);
   const {
     invoices,
     totalCount,
@@ -55,17 +56,13 @@ export function Invoices() {
     error,
     filters
   } = useSelector((state) => state.invoices);
-  console.log(invoices,
-    totalCount,
-    loading,
-    error,
-    filters)
   const {
     invoiceFormOpen,
     editingInvoiceId,
     deleteInvoiceDialogOpen,
     deleteInvoiceId
   } = useSelector((state) => state.ui);
+  const [searchInput, setSearchInput] = useState(filters.search || '');
 
   useEffect(() => {
     dispatch(fetchInvoices(filters));
@@ -155,20 +152,30 @@ export function Invoices() {
         <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
           <TextField
             placeholder="Search by customer name"
-            value={filters.search || ''}
-            onChange={(e) => dispatch(setFilters({ ...filters, search: e.target.value, page: 1 }))}
+            value={searchInput}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchInput(value);
+              clearTimeout(debounceRef.current);
+              debounceRef.current = setTimeout(() => {
+                dispatch(setFilters({ ...filters, search: value, page: 1 }));
+              }, 500);
+            }}
             sx={{ flex: 1, minWidth: '200px' }}
             size="small"
           />
           <FormControl sx={{ minWidth: '150px' }}>
             <InputLabel>Status</InputLabel>
             <Select
-              value={filters.status || ''}
+              value={filters.status || 'all'}
               label="Status"
-              onChange={(e) => dispatch(setFilters({ ...filters, status: e.target.value, page: 1 }))}
+              onChange={(e) => {
+                const val = e.target.value === 'all' ? '' : e.target.value;
+                dispatch(setFilters({ ...filters, status: val, page: 1 }));
+              }}
               size="small"
             >
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value="all">All</MenuItem>
               <MenuItem value="Draft">Draft</MenuItem>
               <MenuItem value="Sent">Sent</MenuItem>
               <MenuItem value="Paid">Paid</MenuItem>
@@ -211,7 +218,7 @@ export function Invoices() {
                         <TableCell>
                           {new Date(parseInt(invoice.createdAt, 10)).toLocaleDateString()}
                         </TableCell>
-                        <TableCell align="center" sx={{flexDirection:'row', display: 'flex', justifyContent: 'center'}}>
+                        <TableCell align="center" sx={{ flexDirection: 'row', display: 'flex', justifyContent: 'center' }}>
                           {can('editInvoice') && (
                             <IconButton
                               size="small"
